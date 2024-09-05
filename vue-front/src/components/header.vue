@@ -31,11 +31,11 @@
                     {'nav-link px-2': true}
                 ]
                 ">Test</a></li> -->
-            <!-- <li><a href="/test2" id="menu_group" :class="[
-                    { 'active': $route.path === '/test2' },
+            <li><a href="/monitor" id="menu_group" :class="[
+                    { 'active': $route.path === '/monitor' },
                     {'nav-link px-2': true}
                 ]
-                ">Test2</a></li> -->
+                ">모니터</a></li>
             <li><a href="/test3" id="menu_group" :class="[
                     { 'active': $route.path === '/test3' },
                     {'nav-link px-2': true}

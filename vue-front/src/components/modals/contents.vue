@@ -1,7 +1,7 @@
 <template>
     <!-- <div v-if="isVisible" @click.self="closeModal"> -->
-    <div >
-        <div class="modal show" id="composition" data-bs-backdrop="static" data-bs-keyboard="true"
+    <div>
+        <div class="modal show blur-background" id="composition" data-bs-backdrop="static" data-bs-keyboard="true"
          aria-labelledby="staticBackdropLabel" aria-hidden="true" style="display: block;">
             <div class="modal-dialog modal-dialog-centered modal-custom">
                 <div class="modal-content">
@@ -14,6 +14,7 @@
                                 </div>
                                 <div class="col-5 me-5 border hi-700" id="menu">
                                     <div class="my-2">구성 리스트</div>
+                                    <span v-if="monitorStore.monitorList?.length > 0">총: {{ monitorStore.monitorList?.length }} 개</span>
                                     <div class="border hi-500 p-2 scroll" >
                                         <table class="table text-center" id="userTab">
                                             <thead>
@@ -27,7 +28,14 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
-
+                                                <tr v-for="monitor in monitorStore.monitorList" :key="monitor.id">
+                                                    <td>
+                                                        <input class="form-check-input" type="checkbox" value=""
+                                                            id="checkbox">
+                                                    </td>
+                                                    <td>{{ monitor.monitor_title }}</td>
+                                                    <td>{{ monitor.monitor_content }}차트</td>
+                                                </tr>
                                             </tbody>
                                         </table>
                                     </div>
@@ -46,9 +54,8 @@
                                                 <div class="col-2 my-2">콘텐츠</div>
                                                 <div class="col-10 my-2">
                                                     <select >
-                                                        <!-- <option v-for="">
-
-                                                        </option> -->
+                                                        <option>bar차트</option>
+                                                        <option>pie차트</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-2">타이틀</div>
@@ -75,35 +82,27 @@
         </div>
     </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, defineEmits, onMounted } from 'vue';
+import { useMonitorStore } from '@/stores/monitor';
 
+const monitorStore = useMonitorStore();
 
-export default {
-    // props: { //부모에서 넘어온것
-    //     isVisible: {
-    //         type: Boolean, //타입설명
-    //         required: true, //필수 인지
-    //     },
-    // },
-    setup(props, { emit }) {
+const emit = defineEmits(['close']); // 부모 컴포넌트의 @close이벤트 설정
 
-        const monitorData = [
-            {
+const closeModal = () => {
+    emit('close');
+};
 
-            }
-        ];
+const monitorList = async () => { // 모니터링 리스트 가져오기
+    await monitorStore.getMonitorList();
+};
 
+onMounted(monitorList); // 모달창이 열릴 때마다 모니터링 리스트를 가져옴
 
-        const closeModal = () => {
-            emit('close');
-        };
-
-        return {
-            closeModal,
-        }
-    }
-}
 </script>
-<style lang="">
-    
+<style scope>
+    .blur-background {
+        background-color: rgba(128, 128, 128, 0.5); /* 회색 배경색 */
+    }
 </style>

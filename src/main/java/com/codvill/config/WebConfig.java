@@ -37,6 +37,7 @@ public class WebConfig implements WebMvcConfigurer{
                 .excludePathPatterns("/vgetSession")
                 .excludePathPatterns("/vIdCheck")
                 .excludePathPatterns("/vRegis")
+                .excludePathPatterns("/vmonitorCoordinateUpdate")
                 ;
 
         registry.addInterceptor(menuInterceptor)
