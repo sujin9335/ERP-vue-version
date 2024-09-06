@@ -4,25 +4,29 @@
         :style="divStyle"
 
         :class="[{
+                    'defaultBorder': !editor,
                     'editMode' : editor,
+                    'other-elements-selector' : !isIdCheck
                 }]" 
         @mousedown="onMouseDown"
         
     >
-        <div>{{ isIdCheck }}</div>
-        <div>{{ data.monitor_title }}</div>
-        <pie/>
+        <chart 
+            style="width: 100%; height: 100%;"
+            :data="props.data" 
+        />
         <div v-if="isIdCheck" class="resizer right" @mousedown="onResizeMouseDown('right', $event)"></div>
         <div v-if="isIdCheck" class="resizer bottom" @mousedown="onResizeMouseDown('bottom', $event)"></div>
         <div v-if="isIdCheck" class="resizer all" @mousedown="onResizeMouseDown('all', $event)"></div>
     </div>
+        
 </template>
 
 
 
 <script setup lang="ts">
-import pie from '@/highChart/pie.vue';
-import { defineProps, ref, onMounted, watch } from 'vue';
+import chart from '@/components/chart/highChart.vue';
+import { defineProps, defineEmits, ref, onMounted, watch } from 'vue';
 import { useMonitorStore } from '@/stores/monitor';
 
 interface Monitor {
@@ -37,11 +41,16 @@ interface Monitor {
 }
 
 //eidtor : 에디터모드, data : 모니터 데이터, selectedMonitor : 선택된 모니터(얘만 변경가능하게)
-const props = defineProps<{ editor: boolean; data: Monitor; selectedMonitor: string | null; }> ();
+const props = defineProps<{ editor: boolean; data: Monitor; selectedMonitor: string | null; setStyle: any;}> ();
+
+//부모 컴포넌트로 이벤트 전달
+const emit = defineEmits<{ (event: 'update', style: any): void }>();
 
 const draggableDiv = ref<HTMLDivElement | null>(null); //div를 참조할 변수
 
 const userMonitorStore = useMonitorStore();
+
+const moveWidth = ref(0);
 
 const divStyle = ref({
     position: 'absolute',
@@ -49,9 +58,10 @@ const divStyle = ref({
     top: `${props.data.monitor_y}px`,
     width: `${props.data.monitor_width}px`,
     height: `${props.data.monitor_hight}px`,
-    // backgroundColor: 'lightgray',
-    cursor: props.editor ? 'pointer' : ''
+    cursor: props.editor ? 'pointer' : '',
 });
+
+
 
 const isIdCheck = ref(false);
 
@@ -62,11 +72,12 @@ const startTop = ref(0);
 const startWidth = ref(0);
 const startHeight = ref(0);
 const isResizing = ref(false);
+const snapDistance = 10; // 자석 효과 거리
+
+
 
 
 const onMouseDown = (event: MouseEvent) => {
-    // if(props.selectedMonitor == props.data.monitor_id) isIdCheck.value = true;
-
     if (!draggableDiv.value || !props.editor || !isIdCheck.value) return; 
     startX.value = event.clientX;
     startY.value = event.clientY;
@@ -86,15 +97,40 @@ const onMouseMove = (event: MouseEvent) => {
     const dx = event.clientX - startX.value;
     const dy = event.clientY - startY.value;
 
-    const newLeft = startLeft.value + dx;
-    const newTop = startTop.value + dy;
+    let newLeft = startLeft.value + dx;
+    let newTop = startTop.value + dy;
+
+    // 주변 엘리먼트와의 거리 계산 및 자석 효과 적용
+    const elements = document.querySelectorAll('.other-elements-selector'); // 다른 엘리먼트를 선택하는 방법에 맞게 수정
+
+    elements.forEach((element) => {
+        const rect = element.getBoundingClientRect();
+
+        // 왼쪽, 오른쪽, 위쪽, 아래쪽 스냅
+        if (Math.abs(newLeft - rect.right) <= snapDistance) {
+            newLeft = rect.right; // 오른쪽 모서리에 스냅
+        }
+        if (Math.abs(newLeft + draggableDiv.value!.offsetWidth - rect.left) <= snapDistance) {
+            newLeft = rect.left - draggableDiv.value!.offsetWidth; // 왼쪽 모서리에 스냅
+        }
+        if (Math.abs(newTop - rect.bottom) <= snapDistance) {
+            newTop = rect.bottom; // 아래쪽 모서리에 스냅
+        }
+        if (Math.abs(newTop + draggableDiv.value!.offsetHeight - rect.top) <= snapDistance) {
+            newTop = rect.top - draggableDiv.value!.offsetHeight; // 위쪽 모서리에 스냅
+        }
+    });
 
     divStyle.value = {
         ...divStyle.value,
         left: `${newLeft}px`,
         top: `${newTop}px`
     };
+
+    
 };
+
+
 
 const onMouseUp = () => {
     document.removeEventListener('mousemove', onMouseMove);
@@ -120,15 +156,46 @@ const onResizeMouseDown = (direction: string, event: MouseEvent) => {
         const dx = event.clientX - startX.value;
         const dy = event.clientY - startY.value;
 
+        let newWidth = startWidth.value;
+        let newHeight = startHeight.value;
+
         if (direction === 'right' || direction === 'all') {
-        const newWidth = startWidth.value + dx;
-        divStyle.value.width = `${newWidth}px`;
+            newWidth += dx;
         }
-        
+
         if (direction === 'bottom' || direction === 'all') {
-        const newHeight = startHeight.value + dy;
-        divStyle.value.height = `${newHeight}px`;
+            newHeight += dy;
         }
+
+        // 주변 엘리먼트와의 거리 계산 및 자석 효과 적용
+        const elements = document.querySelectorAll('.other-elements-selector'); // 다른 엘리먼트를 선택하는 방법에 맞게 수정
+
+        elements.forEach((element) => {
+            const rect = element.getBoundingClientRect();
+
+            if (direction === 'right' || direction === 'all') {
+                if (Math.abs(draggableDiv.value!.offsetLeft + newWidth - rect.left) <= snapDistance) {
+                    newWidth = rect.left - draggableDiv.value!.offsetLeft; // 왼쪽에 스냅
+                }
+                if (Math.abs(draggableDiv.value!.offsetLeft + newWidth - rect.right) <= snapDistance) {
+                    newWidth = rect.right - draggableDiv.value!.offsetLeft; // 오른쪽에 스냅
+                }
+            }
+
+            if (direction === 'bottom' || direction === 'all') {
+                if (Math.abs(draggableDiv.value!.offsetTop + newHeight - rect.top) <= snapDistance) {
+                    newHeight = rect.top - draggableDiv.value!.offsetTop; // 위쪽에 스냅
+                }
+                if (Math.abs(draggableDiv.value!.offsetTop + newHeight - rect.bottom) <= snapDistance) {
+                    newHeight = rect.bottom - draggableDiv.value!.offsetTop; // 아래쪽에 스냅
+                }
+            }
+        });
+
+        divStyle.value.width = `${newWidth}px`;
+        divStyle.value.height = `${newHeight}px`;
+
+        moveWidth.value = newWidth;
     };
 
     const onResizeMouseUp = () => {
@@ -149,7 +216,46 @@ watch( //선택 id 변화 체크
 );
 
 
+//부모 컴포넌트에서 입력받은 스타일 변경
+watch(() => props.setStyle,(newSetStyle) => {
+        console.log(newSetStyle);    
+        if(newSetStyle.id == props.data.monitor_id) {
+            divStyle.value = {
+                ...divStyle.value,
+                left: `${newSetStyle.x}px`,
+                top: `${newSetStyle.y}px`,
+                width: `${newSetStyle.width}px`,
+                height: `${newSetStyle.height}px`
+            };
+        }
+    }
+);
 
+
+
+
+//가로값이 아니라 divStyle을 안에 모든값 감지
+// watch(() => [divStyle.value, isIdCheck.value], ([newStyle, isSelected]) => {
+watch(() => [divStyle.value, isIdCheck.value], ([newStyle, isSelected]) => {
+
+    if(isIdCheck.value) {
+        // console.log('isIdCheck');
+        const newDivStyle = {
+            id: props.data.monitor_id,
+            x: newStyle.left.replace('px', ''),
+            y: newStyle.top.replace('px', ''),
+            width: newStyle.width.replace('px', ''),
+            height: newStyle.height.replace('px', '')
+        };
+    
+        emit('update', newDivStyle);
+    }
+
+
+}, {deep: true}); //객체 안에 있는 값까지 감지
+
+
+//모니터 데이터 DB저장
 watch(() => props.editor, async (newVal, oldVal) => {
     if (!newVal) {
         const style = window.getComputedStyle(draggableDiv.value);
@@ -176,14 +282,15 @@ watch(() => props.editor, async (newVal, oldVal) => {
 
 <style scoped>
 
-.selectTagStyle {
-    border: 2px solid orangered;
-    cursor: move;
+.defaultBorder {
+    border: 2px solid transparent;
+    box-sizing: border-box;
 }
 
 .editMode {
-    border: 2px solid blue;
+    border: 2px dashed blue;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .editMode:hover {
@@ -224,4 +331,8 @@ watch(() => props.editor, async (newVal, oldVal) => {
     right: -2px;
     cursor: ew-resize;
 }
+
+
+
+
 </style>

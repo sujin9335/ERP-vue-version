@@ -191,7 +191,7 @@ export default {
                     localStorage.removeItem('rememberId');
                 }
 
-                await this.$router.push({ name: "test3" });
+                await this.$router.push({ name: "monitor" });
                 // window.location.href = 'http://localhost:25000/highChart/';
             }
             console.log(result);

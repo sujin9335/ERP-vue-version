@@ -10,7 +10,7 @@ export default defineConfig({
     port: 25001, // 원하는 포트 변경
     proxy: { //axios 설정
       "/a": {
-        target: "http://localhost:25000/",
+        target: "http://localhost:25002/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/a/, ""),
       },

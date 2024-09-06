@@ -47,31 +47,35 @@
                                     <!-- 메뉴 -->
                                     
                                     <!-- 내용 -->
-                                    <div class="border m-2">
-                                        <!-- <div class="container" style="display: none;"> -->
-                                        <div class="container text-center" id="normalCon">
+                                    <div class=" m-2">
+                                        구성정보
+                                            
                                             <div class="row row-cols-2">
                                                 <div class="col-2 my-2">콘텐츠</div>
                                                 <div class="col-10 my-2">
-                                                    <select >
-                                                        <option>bar차트</option>
-                                                        <option>pie차트</option>
+                                                    <select v-model="typeSelect">
+                                                        <option value="bar">bar차트</option>
+                                                        <option value="pie">pie차트</option>
+                                                        <option value="line">pie차트</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-2">타이틀</div>
                                                 <div class="col-10 mb-2">
-                                                    <input class="form-control" type="text" id="text">
+                                                    <input 
+                                                        v-model="titleInput"
+                                                        class="form-control" type="text">
                                                 </div>
                                                 <div class="col-2">데이터</div>
                                                 <div class="col-10">
-                                                    <textarea class="form-control" rows="17" id="info"></textarea>
+                                                    <textarea class="form-control" rows="17"></textarea>
                                                     <input type="hidden" id="id">
                                                 </div>
                                             </div>
                                             <div class="text-end m-2">
-                                                <button >등록</button>
+                                                <button 
+                                                    @click="addMonitor"
+                                                    >등록</button>
                                             </div>
-                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -83,26 +87,51 @@
     </div>
 </template>
 <script setup lang="ts">
-import { ref, defineEmits, onMounted } from 'vue';
-import { useMonitorStore } from '@/stores/monitor';
+    import { ref, defineEmits, onMounted } from 'vue';
+    import { useMonitorStore } from '@/stores/monitor';
 
-const monitorStore = useMonitorStore();
+    const monitorStore = useMonitorStore();
 
-const emit = defineEmits(['close']); // 부모 컴포넌트의 @close이벤트 설정
+    const titleInput = ref('');
+    const typeSelect = ref('bar');
 
-const closeModal = () => {
-    emit('close');
-};
+    const emit = defineEmits(['close']); // 부모 컴포넌트의 @close이벤트 설정
 
-const monitorList = async () => { // 모니터링 리스트 가져오기
-    await monitorStore.getMonitorList();
-};
+    const closeModal = () => {
+        emit('close');
+    };
 
-onMounted(monitorList); // 모달창이 열릴 때마다 모니터링 리스트를 가져옴
+    const monitorList = async () => { // 모니터링 리스트 가져오기
+        await monitorStore.getMonitorList();
+    };
+
+    const addMonitor = async () => { // 모니터링 추가
+        if (!/^.{1,30}$/.test(titleInput.value)) {
+            alert('타이틀은 1~30 글자 입니다');
+            return;
+        }
+
+
+        const addMonitor = {
+            monitor_title: titleInput.value,
+            monitor_content: typeSelect.value,
+        };
+
+        console.log(addMonitor);
+        await monitorList();
+        
+
+    };  
+
+    onMounted(monitorList); // 모달창이 열릴 때마다 모니터링 리스트를 가져옴
 
 </script>
 <style scope>
     .blur-background {
         background-color: rgba(128, 128, 128, 0.5); /* 회색 배경색 */
+    }
+
+    select {
+        width: 100%;
     }
 </style>

@@ -33,7 +33,7 @@ project:
 # ===== Developer Tools INFO ===== 
 #Sping Built-in server
 server:
-  port: 25000
+  port: 25002
   error:
     whitelabel:
       enabled: false
