@@ -35,18 +35,34 @@
                     { 'active': $route.path === '/monitor' },
                     {'nav-link px-2': true}
                 ]
-                ">모니터</a></li>
-            <li><a href="/test3" id="menu_group" :class="[
-                    { 'active': $route.path === '/test3' },
-                    {'nav-link px-2': true}
-                ]
                 ">구성</a></li>
+            
         </ul>
+
+        <div class="btn-group" role="group">
+            <div data-bs-toggle="dropdown" aria-expanded="false" style="cursor: pointer;">
+                <i class="bi bi-gear"></i>
+            </div>
+            <div class="dropdown-menu text-center p-3">
+                <button 
+                    @click="toggleModal"
+                    type="button" class="btn btn-outline-secondary mb-2">구성</button>
+                <button 
+                    @click="toggleEditMode"
+                    type="button" 
+                    :class="[
+                        { 'active': monitorStore.isEdit },
+                        { 'btn btn-outline-secondary': true}
+                    ]"
+                    >편집모드</button>
+            </div>
+        </div>
         
 
         
         <!-- 로그아웃 버튼 표시 -->
         <div class="col-md-3 text-end">
+            
             
 
             <span>안녕하세요 {{ userName }}님</span>
@@ -58,24 +74,32 @@
 
         
         </header>
+        <modal v-if="isModal" @close="toggleModal"/>
     </div>
 </template>
-<script lang="ts">
-import { defineComponent } from "vue";
-import { useAuthStore } from "@/stores/auth";
+<script setup lang="ts">
+    import { ref, computed } from "vue";
+    import { useAuthStore } from "@/stores/auth";
+    import modal from '@/components/modals/contents.vue';
+    import { useMonitorStore } from '@/stores/monitor';
 
-export default defineComponent({
-    data() {
-        return {
-            authStore: useAuthStore(),
-        };
-    },
-    computed: {
-        userName() {
-            return this.authStore.loginInfo?.user_name || "게스트";
-        },
-    },
-});
+    // 스토어 사용
+    const authStore = useAuthStore();
+    const monitorStore = useMonitorStore();
+
+    const isModal = ref(false); //모달창 on off
+
+    const userName = computed(() => authStore.loginInfo?.user_name || "게스트");
+
+    const toggleModal = () => {
+        isModal.value = !isModal.value;
+    };
+
+    const toggleEditMode = () => {
+        monitorStore.toggleEditMode();
+    };
+
+
 </script>
 <style scoped>
 .active {

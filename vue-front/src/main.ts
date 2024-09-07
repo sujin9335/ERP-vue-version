@@ -4,6 +4,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
 import 'bootstrap/dist/css/bootstrap.min.css'  // Bootstrap CSS 추가
+import 'bootstrap-icons/font/bootstrap-icons.css'; // Bootstrap Icons 추가
 import * as bootstrap from 'bootstrap'
 import axios from './axios'// 엑시오스 추가
 import { createPinia } from 'pinia' // 피니아 추가

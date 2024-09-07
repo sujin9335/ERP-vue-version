@@ -15,6 +15,7 @@
     "alertifyjs": "^1.14.0",
     "axios": "^1.7.3",
     "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
     "highcharts": "^11.4.7",
     "highcharts-drilldown": "^0.1.7",
     "highcharts-vue": "^2.0.1",

@@ -15,10 +15,17 @@ interface Monitor {
 export const useMonitorStore = defineStore('monitor', {
     state: () => ({
         monitorList: [] as Monitor[],
-
+        isEdit: false as boolean,
 
     }),
     actions: {
+
+        toggleEditMode () {
+            this.isEdit = !this.isEdit;
+            console.log(this.isEdit);
+        },
+
+
         async getMonitorList() { //모니터링 리스트
             try {
                 const result = await axios.post(
@@ -55,6 +62,58 @@ export const useMonitorStore = defineStore('monitor', {
             }
         },
 
+        async monitorInsert(monitorData: any) { //모니터 Insert
+            try {
+                const result = await axios.post(
+                    '/a/vmonitorInsert',
+                    {info: monitorData}
+                );
+
+                
+                if (result.status === 200) {
+                    console.log("완료");
+                    this.getMonitorList();
+                }
+            } catch (error) {
+                alert("모니터링 인서트 통신에러");
+            }
+        },
+
+        async monitorUpdate(monitorData: any) { //모니터 update
+            try {
+                const result = await axios.post(
+                    '/a/vmonitorUpdate',
+                    {info: monitorData}
+                );
+
+                
+                if (result.status === 200) {
+                    console.log("완료");
+                    this.getMonitorList();
+
+                }
+            } catch (error) {
+                alert("모니터링 업데이트 통신에러");
+            }
+        },
+
+        async monitorDelete(monitorData: any) { //모니터 delete
+            try {
+                const result = await axios.post(
+                    '/a/vmonitorDelete',
+                    {info: monitorData}
+                );
+
+                
+                if (result.status === 200) {
+                    console.log("완료");
+                    this.getMonitorList();
+
+                }
+            } catch (error) {
+                alert("모니터링 삭제 통신에러");
+            }
+        }
 
 
     },

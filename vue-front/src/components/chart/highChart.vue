@@ -49,32 +49,21 @@ const chart = computed(() => ({
         tooltip: {
             valueSuffix: '명'
         },
+        // x축 라벨 표시
+        xAxis: {
+            type: 'category'
+        },
 
         plotOptions: {
             series: {
                 allowPointSelect: true,
                 cursor: 'pointer',
-                dataLabels: [{
+                dataLabels: {
                     enabled: true,
-                    distance: 20
-                }, {
-                    enabled: true,
-                    distance: -40,
-                    // format: '{point.percentage:.1f}%',
-                    formatter: function () {
-                        // console.log(this)
-                        if (this.point.drilldown) {
-                            return this.point.percentage.toFixed(1)+"%";
-                        } else {
-                            return "ID: "+this.key;
-                        }
-                    },
-                    style: {
-                        fontSize: '1em',
-                        textOutline: 'none',
-                        opacity: 0.7
-                    }
-                }]
+                    format: '{point.name}: {point.y}명'
+                }
+                
+
             }
         },
         exporting: {

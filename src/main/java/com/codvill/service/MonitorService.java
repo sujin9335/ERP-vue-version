@@ -22,6 +22,18 @@ public class MonitorService {
         return md.monitorCoordinateUpdate(param);
     }
 
+    public JSONObject monitorInsert(Map<String, Object> param) {
+        return md.monitorInsert(param);
+    }
+
+    public JSONObject monitorUpdate(Map<String, Object> param) {
+        return md.monitorUpdate(param);
+    }
+
+    public JSONObject monitorDelete(Map<String, Object> param) {
+        return md.monitorDelete(param);
+    }
+
 
 
 }

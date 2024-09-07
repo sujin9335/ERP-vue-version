@@ -1,7 +1,9 @@
 package com.codvill.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -53,7 +55,7 @@ public class MonitorDao {
 
     public JSONObject monitorList() {
         JSONObject obj = new JSONObject();
-        String sql = "select * from tbl_monitor order by monitor_date asc";
+        String sql = "select * from tbl_monitor order by monitor_date desc";
 
         List<Map<String, Object>> list = jt.queryForList(sql);
 
@@ -84,8 +86,71 @@ public class MonitorDao {
                         "monitor_width = ?, " +
                         "monitor_hight = ?  " +
                     "WHERE " +
-                        "monitor_id = ? ";
+                        "monitor_id = ? " ;
         jt.update(sql, x, y, width, height, id);
+
+        return obj;
+    }
+
+    public JSONObject monitorInsert(Map<String, Object> param) {
+        JSONObject obj = new JSONObject();
+        Map<String, Object> map = (Map<String, Object>) param.get("info");
+        if (map == null || map.isEmpty()) {
+            obj.put("msg", "빈값");
+            return obj;
+        }
+        UUID uuid = UUID.randomUUID();
+
+        String title = Utils.nvl(map.get("monitor_title").toString(),"-"); 
+        String content = Utils.nvl(map.get("monitor_content").toString(),""); 
+
+
+        String sql = "INSERT INTO tbl_monitor (monitor_id, monitor_content, monitor_title, monitor_x, monitor_y, monitor_width, monitor_hight, monitor_date) " +
+                         "VALUES (?,?,?,?,?,?,?,now())";
+
+        jt.update(sql, uuid.toString(), content, title, "100", "200", "300", "200");
+
+
+
+        return obj;
+    }
+
+    public JSONObject monitorUpdate(Map<String, Object> param) {
+        JSONObject obj = new JSONObject();
+        Map<String, Object> map = (Map<String, Object>) param.get("info");
+        if (map == null || map.isEmpty()) {
+            obj.put("msg", "빈값");
+            return obj;
+        }
+        String title = Utils.nvl(map.get("monitor_title").toString(),"-"); 
+        String content = Utils.nvl(map.get("monitor_content").toString(),""); 
+        String id = Utils.nvl(map.get("monitor_id").toString(),"");
+
+        String sql = "UPDATE tbl_monitor " +
+                    "SET " +
+                        "monitor_content = ?, " +
+                        "monitor_title = ?  " +
+                    "WHERE " +
+                        "monitor_id = ? ";
+        jt.update(sql, content, title, id);
+
+        return obj;
+    }
+
+    public JSONObject monitorDelete(Map<String, Object> param) {
+        JSONObject obj = new JSONObject();
+        List<String> list = null;
+        list = (ArrayList<String>) param.get("info");
+        if (list == null || list.isEmpty()) {
+            obj.put("msg", "빈값");
+            return obj;
+            
+        }
+
+        for (String id : list) {
+            String sql = "DELETE FROM tbl_monitor WHERE monitor_id = ? ";
+            jt.update(sql, id);
+        }
 
         return obj;
     }

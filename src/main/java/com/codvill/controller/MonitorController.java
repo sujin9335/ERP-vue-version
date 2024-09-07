@@ -39,7 +39,7 @@ public class MonitorController {
     @PostMapping("/vmonitorCoordinateUpdate")
     @ResponseBody
     public ResponseEntity<Object> monitorCoordinateUpdate(@RequestBody Map<String, Object> param) {
-        System.out.println("monitorList 작동");
+        System.out.println("monitor좌표 업데이트 작동");
         JSONObject obj = new JSONObject();
         System.out.println(param);
 
@@ -53,6 +53,61 @@ public class MonitorController {
 
         
     }
+
+    @PostMapping("/vmonitorInsert")
+    @ResponseBody
+    public ResponseEntity<Object> monitorInsert(@RequestBody Map<String, Object> param) {
+        System.out.println("monitorInsert 작동");
+        JSONObject obj = new JSONObject();
+        System.out.println(param);
+
+        try {
+            ms.monitorInsert(param);
+            return ResponseEntity.ok(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        
+    }
+
+    @PostMapping("/vmonitorUpdate")
+    @ResponseBody
+    public ResponseEntity<Object> monitorUpdate(@RequestBody Map<String, Object> param) {
+        System.out.println("monitorUpdate 작동");
+        JSONObject obj = new JSONObject();
+        System.out.println(param);
+
+        try {
+            ms.monitorUpdate(param);
+            return ResponseEntity.ok(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        
+    }
+
+    @PostMapping("/vmonitorDelete")
+    @ResponseBody
+    public ResponseEntity<Object> monitorDelete(@RequestBody Map<String, Object> param) {
+        System.out.println("monitorDelete 작동");
+        JSONObject obj = new JSONObject();
+        System.out.println(param);
+
+        try {
+            ms.monitorDelete(param);
+            return ResponseEntity.ok(obj);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        
+    }
+
 
 
 
