@@ -90,6 +90,7 @@
     const isModal = ref(false); //모달창 on off
 
     const userName = computed(() => authStore.loginInfo?.user_name || "게스트");
+    const userAuth = computed(() => authStore.loginInfo?.user_auth || "게스트");
 
     const toggleModal = () => {
         isModal.value = !isModal.value;
